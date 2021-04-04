@@ -82,7 +82,7 @@ class Approximations {
     //
     // Hanno Rein: Improved initial guess. 
 
-    Float f_E, fP_E, this_ell, old_E, sinE, cosE;
+    Float this_ell, old_E, sinE, cosE;
 
     old_E = 0;
 
