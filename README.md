@@ -4,9 +4,9 @@
 
 Another small update:
 
-- By using a 4th order initial condition (requiring one sin(), cos() and sqrt() operation). The Newton-Raphson method converges in 1 step for the test problem. This makes it faster than the contour method when building with "-march-native".
+- By using a 4th order initial condition (requiring one sin(), cos() and sqrt() operation), the Newton-Raphson method converges in 1 step for the test problem. This makes it faster than the contour method when building with "-march-native".
 
-- This also has the advantage that it can automatically stop the iteration when converged. For this test case, this is not important (it always uses one step).
+- Notee that this also has the advantage that it can automatically stop the iteration when converged. For this test case, this is not important as the method always converges in one step. But it would help significantly if there are rare cases where one needs more than one step.
 
 **Added by Hanno Rein, April 4th 2021:**
 
