@@ -16,7 +16,7 @@ I was intrigued by the speed up offered by the contour method, so I did some mor
 
 - At the moment, the standard test first make sure that the number of points/iterations is high enough for the required accuracy. Once the number of points/iterations has been determined, then the performance is measured. But when using an iterative method, one can relatively easily monitor convergence during the iteration itself. That might be an important advantages because one can just do one more iteration (rather starting from scratch) if the accuracy is not good enough. I suspect something similar could be done for the contour method, but I'm not sure how.
 
-- I did not attempt to speed up the countour method.
+- I did not attempt to speed up the contour method.
 
 - Below is the output of the various tests including the improved iterative method (labelled Newton-Raphson-Hanno) and various compiler options. All tests use the standard setup described in the paper. 
 
