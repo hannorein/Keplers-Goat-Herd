@@ -80,7 +80,8 @@ class Approximations {
   void compute_newton_raphson_hanno(int N_it, Float *output){
     /// Compute Newton-Raphson method with given number of steps
     //
-    // Hanno Rein: Improved initial guess. 
+    // Hanno Rein: - Improved initial guess (2nd, 3rd, or 4th order). 
+    //             - Combined operations in iteration.
 
     Float this_ell, old_E, sinE, cosE;
 
@@ -116,6 +117,64 @@ class Approximations {
 
         // Combine update in one step
         old_E = (this_ell - e*(old_E*cosE-sinE))/(1.-e*cosE);
+      }
+
+      // Add to array
+      output[i] = old_E;
+    }
+  }
+  
+  void compute_newton_raphson_hanno2(int N_it, Float *output, Float tol){
+    /// Compute Newton-Raphson method with given number of steps
+    //
+    // Hanno Rein: - Improved initial guess. 
+    //             - Combined operations in iteration.
+    //             - Check for convergence in loop. 
+
+    Float this_ell, old_E, sinE, cosE;
+
+    old_E = 0;
+
+    for(int i=0;i<N_ell;i++){
+      this_ell = ell_arr[i];
+      
+      // Original initial estimate
+      //if((sin(this_ell))<0) old_E = this_ell - 0.85*e;
+      //else old_E = this_ell + 0.85*e;
+
+      // Define initial estimate (second order in e)
+      //old_E = this_ell + e*sin(this_ell);
+
+      // Define initial estimate (third order in e)
+      //sincos(this_ell,&sinE,&cosE);
+      //old_E = this_ell + e*sinE*(1.+e*cosE);
+      
+      // Define initial estimate (fourth order in e)
+      sincos(this_ell,&sinE,&cosE);
+      old_E = this_ell + e*sinE/sqrt(1.-2.*e*cosE+e*e);
+
+      // Perform Newton-Raphson estimate
+      for(int j=0;j<N_it;j++) {
+
+        // Compute sin and cos in one step.
+        // Note: the compiler is usually smart enough 
+        // to notice that optimization automatically and
+        // this does therefore not improve the speed 
+        // for most compiler options.
+        sincos(old_E,&sinE,&cosE);
+
+        // Combine update in one step
+        Float new_E = (this_ell - e*(old_E*cosE-sinE))/(1.-e*cosE);
+
+        // The following can be used to check for convergence and 
+        // automatically stop the iterastion. It doesn't make a 
+        // difference for this test case as one iteration is 
+        // enough.
+        // if (abs(new_E-old_E)<tol){
+        //     old_E = new_E;
+        //     break;
+        // }
+        old_E = new_E;
       }
 
       // Add to array
@@ -330,6 +389,7 @@ int main(int argc, char *argv[]) {
   // Output estimates
   Float* E_newton_raphson = new Float[N_ell];
   Float* E_newton_raphson_hanno = new Float[N_ell];
+  Float* E_newton_raphson_hanno2 = new Float[N_ell];
   Float* E_Danby = new Float[N_ell];
   Float* E_series = new Float[N_ell];
   Float* E_contour = new Float[N_ell];
@@ -373,6 +433,27 @@ int main(int argc, char *argv[]) {
 
   }
   printf("Computed Newton-Raphson-Hanno estimate in %d steps after %.1f ms with mean-error %.2e\n",N_NRH,float(duration_NRH/1000.),err_NRH);
+
+  // Compute Newton-Raphson-Hanno2 quadratic estimate
+  int N_NRH2 = 0; // Newton-Raphson iterations
+  Float err_NRH2;
+  long long int duration_NRH2;
+
+  // Increase N_NR until we reach tolerance!
+  while (N_NRH2<100){ // max limit!
+    start = high_resolution_clock::now(); // starting time
+    approx.compute_newton_raphson_hanno2(N_NRH2,E_newton_raphson_hanno2, tol);
+    stop = high_resolution_clock::now(); // ending time
+    duration_NRH2 = duration_cast<microseconds>(stop - start).count(); // duration
+
+    err_NRH2 = 0;
+    for(int i=0;i<N_ell;i++) err_NRH2 += abs(E_exact[i]-E_newton_raphson_hanno2[i])/N_ell;
+    if(err_NRH2<tol) break;
+    N_NRH2 ++;
+
+  }
+  printf("Computed Newton-Raphson-Hanno2 estimate in %d steps after %.1f ms with mean-error %.2e\n",N_NRH2,float(duration_NRH2/1000.),err_NRH2);
+
 
 
   // Compute Danby quartic estimate
