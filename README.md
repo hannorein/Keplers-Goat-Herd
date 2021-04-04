@@ -4,9 +4,9 @@
 
 Another small update:
 
-- By using a 4th order initial guess (requiring one sin(), cos() and sqrt() operation), the Newton-Raphson method converges in 1 step for the test problem. This makes it pretty much as fast as the contour method (with some differences depending on the compiler options used, see below).
+- By using a 4th order initial guess (requiring one sin(), cos() and sqrt() operation), the Newton-Raphson method converges in 1 step for the test problem. This makes it pretty much as fast as the contour method (with some differences depending on the compiler options used). The method is labelled Newton-Raphson-Hanno2 below.
 
-- Note that this also has the advantage that it can automatically stop the iteration when converged. For this test case, this is not important as the method always converges in one step. But it would help significantly if there are rare cases where one needs more than one step.
+- Note that this method also has the advantage that it can automatically stop the iteration when converged. For this test case, this is not important as the method always converges in one step. But it would help significantly if there are rare cases where one needs more than one step.
 
 ```
 Running tests with: -O3 -ffast-math (used in paper)
