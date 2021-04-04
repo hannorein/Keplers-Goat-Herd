@@ -76,6 +76,52 @@ class Approximations {
       output[i] = old_E;
     }
   }
+  
+  void compute_newton_raphson_hanno(int N_it, Float *output){
+    /// Compute Newton-Raphson method with given number of steps
+    //
+    // Hanno Rein: Improved initial guess. 
+
+    Float f_E, fP_E, this_ell, old_E, sinE, cosE;
+
+    old_E = 0;
+
+    for(int i=0;i<N_ell;i++){
+      this_ell = ell_arr[i];
+      
+      // Original initial estimate
+      //if((sin(this_ell))<0) old_E = this_ell - 0.85*e;
+      //else old_E = this_ell + 0.85*e;
+
+      // Define initial estimate (second order in e)
+      old_E = this_ell + e*sin(this_ell);
+
+      // Define initial estimate (third order in e)
+      //sincos(this_ell,&sinE,&cosE);
+      //old_E = this_ell + e*sinE*(1.+e*cosE);
+      
+      // Define initial estimate (fourth order in e)
+      //sincos(this_ell,&sinE,&cosE);
+      //old_E = this_ell + e*sinE/sqrt(1.-2.*e*cosE+e*e);
+
+      // Perform Newton-Raphson estimate
+      for(int j=0;j<N_it;j++) {
+
+        // Compute sin and cos in one step.
+        // Note: the compiler is usually smart enough 
+        // to notice that optimization automatically and
+        // this does therefore not improve the speed 
+        // for most compiler options.
+        sincos(old_E,&sinE,&cosE);
+
+        // Combine update in one step
+        old_E = (this_ell - e*(old_E*cosE-sinE))/(1.-e*cosE);
+      }
+
+      // Add to array
+      output[i] = old_E;
+    }
+  }
 
   void compute_danby(int N_it, Float *output){
     /// Compute Danby (1988) fourth-order root-finding method with given number of steps
@@ -283,6 +329,7 @@ int main(int argc, char *argv[]) {
 
   // Output estimates
   Float* E_newton_raphson = new Float[N_ell];
+  Float* E_newton_raphson_hanno = new Float[N_ell];
   Float* E_Danby = new Float[N_ell];
   Float* E_series = new Float[N_ell];
   Float* E_contour = new Float[N_ell];
@@ -306,6 +353,27 @@ int main(int argc, char *argv[]) {
 
   }
   printf("Computed Newton-Raphson estimate in %d steps after %.1f ms with mean-error %.2e\n",N_NR,float(duration_NR/1000.),err_NR);
+  
+  // Compute Newton-Raphson-Hanno quadratic estimate
+  int N_NRH = 0; // Newton-Raphson iterations
+  Float err_NRH;
+  long long int duration_NRH;
+
+  // Increase N_NR until we reach tolerance!
+  while (N_NRH<100){ // max limit!
+    start = high_resolution_clock::now(); // starting time
+    approx.compute_newton_raphson_hanno(N_NRH,E_newton_raphson_hanno);
+    stop = high_resolution_clock::now(); // ending time
+    duration_NRH = duration_cast<microseconds>(stop - start).count(); // duration
+
+    err_NRH = 0;
+    for(int i=0;i<N_ell;i++) err_NRH += abs(E_exact[i]-E_newton_raphson_hanno[i])/N_ell;
+    if(err_NRH<tol) break;
+    N_NRH ++;
+
+  }
+  printf("Computed Newton-Raphson-Hanno estimate in %d steps after %.1f ms with mean-error %.2e\n",N_NRH,float(duration_NRH/1000.),err_NRH);
+
 
   // Compute Danby quartic estimate
   int N_Danby = 0; // Danby iterations
