@@ -4,9 +4,61 @@
 
 Another small update:
 
-- By using a 4th order initial guess (requiring one sin(), cos() and sqrt() operation), the Newton-Raphson method converges in 1 step for the test problem. This makes it faster than the contour method when building with "-march-native".
+- By using a 4th order initial guess (requiring one sin(), cos() and sqrt() operation), the Newton-Raphson method converges in 1 step for the test problem. This makes it pretty much as fast as the contour method (with some differences depending on the compiler options used, see below).
 
 - Note that this also has the advantage that it can automatically stop the iteration when converged. For this test case, this is not important as the method always converges in one step. But it would help significantly if there are rare cases where one needs more than one step.
+
+```
+Running tests with: -O3 -ffast-math (used in paper)
+N_ell = 1000000
+e = 0.10
+tolerance = 1.00e-12
+Computed Newton-Raphson estimate in 3 steps after 139.1 ms with mean-error 2.11e-17
+Computed Newton-Raphson-Hanno estimate in 2 steps after 105.7 ms with mean-error 1.20e-14
+Computed Newton-Raphson-Hanno2 estimate in 1 steps after 81.9 ms with mean-error 4.60e-13
+Computed Danby estimate in 2 steps after 140.0 ms with mean-error 2.12e-17
+Computed series estimate in 11 steps after 84.7 ms with mean-error 4.74e-13
+Computed contour estimate in 5 steps after 67.7 ms with mean-error 2.17e-16
+
+
+
+Running tests with: -O3 -ffast-math -march-native
+N_ell = 1000000
+e = 0.10
+tolerance = 1.00e-12
+Computed Newton-Raphson estimate in 3 steps after 135.7 ms with mean-error 1.98e-17
+Computed Newton-Raphson-Hanno estimate in 2 steps after 101.5 ms with mean-error 1.20e-14
+Computed Newton-Raphson-Hanno2 estimate in 1 steps after 79.5 ms with mean-error 4.60e-13
+Computed Danby estimate in 2 steps after 133.0 ms with mean-error 1.99e-17
+Computed series estimate in 11 steps after 30.6 ms with mean-error 4.74e-13
+Computed contour estimate in 5 steps after 80.5 ms with mean-error 2.17e-16
+
+
+
+Running tests with: -O3 -march-native
+N_ell = 1000000
+e = 0.10
+tolerance = 1.00e-12
+Computed Newton-Raphson estimate in 3 steps after 136.7 ms with mean-error 1.22e-16
+Computed Newton-Raphson-Hanno estimate in 2 steps after 101.9 ms with mean-error 1.20e-14
+Computed Newton-Raphson-Hanno2 estimate in 1 steps after 80.7 ms with mean-error 4.60e-13
+Computed Danby estimate in 2 steps after 142.1 ms with mean-error 1.26e-16
+Computed series estimate in 11 steps after 212.9 ms with mean-error 4.74e-13
+Computed contour estimate in 5 steps after 78.3 ms with mean-error 1.96e-16
+
+
+
+Running tests with: -O1
+N_ell = 1000000
+e = 0.10
+tolerance = 1.00e-12
+Computed Newton-Raphson estimate in 3 steps after 146.3 ms with mean-error 1.22e-16
+Computed Newton-Raphson-Hanno estimate in 2 steps after 111.9 ms with mean-error 1.20e-14
+Computed Newton-Raphson-Hanno2 estimate in 1 steps after 88.9 ms with mean-error 4.60e-13
+Computed Danby estimate in 2 steps after 149.1 ms with mean-error 1.26e-16
+Computed series estimate in 11 steps after 218.6 ms with mean-error 4.74e-13
+Computed contour estimate in 5 steps after 77.2 ms with mean-error 1.96e-16
+```
 
 **Added by Hanno Rein, April 4th 2021:**
 
