@@ -220,6 +220,52 @@ class Approximations {
       output[i] = old_E;
     }
   }
+  
+  void compute_danby_hanno(int N_it, Float *output, Float tol){
+    /// Compute Danby (1988) fourth-order root-finding method with given number of steps
+    // This has quartic convergence.
+    // The initial step is defined as E_0 = ell + sgn(sin(ell))*e*k following Danby (1988)
+
+    Float f_E, fP_E, fPP_E, fPPP_E, this_ell, old_E, delta_i1, delta_i2, delta_i3, esinE, ecosE;
+
+    for(int i=0;i<N_ell;i++){
+      this_ell = ell_arr[i];
+
+      // Define initial estimate (second order in e)
+      old_E = this_ell + e*sin(this_ell);
+
+      // Define initial estimate (fourth order in e)
+      //sincos(this_ell,&esinE,&ecosE);
+      //old_E = this_ell + e*esinE/sqrt(1.-2.*e*ecosE+e*e);
+            
+
+      // Perform Newton-Raphson estimate
+      for(int j=0;j<N_it;j++) {
+
+        // Compute f(E), f'(E), f''(E) and f'''(E), avoiding recomputation of sine and cosine.
+        sincos(old_E,&esinE,&ecosE);
+        esinE = e*esinE;
+        ecosE = e*ecosE;
+        f_E = old_E - esinE-this_ell;
+        fP_E = 1. - ecosE;
+        fPP_E = esinE/2.;
+        fPPP_E = ecosE;
+
+        delta_i1 = -f_E/fP_E;
+        delta_i2 = -f_E/(fP_E+delta_i1*fPP_E);
+        delta_i3 = -f_E/(fP_E+delta_i2*fPP_E+fPPP_E*delta_i2*delta_i2/6.);
+
+        // Update E
+        old_E += delta_i3;
+        if (abs(delta_i3)<tol){
+             break;
+        }
+      }
+
+      // Add to array
+      output[i] = old_E;
+    }
+  }
 
   void compute_series(int N_it, Float *output){
     // Solve Kepler's equation via the series method described in Murray & Dermot.
@@ -391,6 +437,7 @@ int main(int argc, char *argv[]) {
   Float* E_newton_raphson_hanno = new Float[N_ell];
   Float* E_newton_raphson_hanno2 = new Float[N_ell];
   Float* E_Danby = new Float[N_ell];
+  Float* E_Danby_hanno = new Float[N_ell];
   Float* E_series = new Float[N_ell];
   Float* E_contour = new Float[N_ell];
 
@@ -474,6 +521,25 @@ int main(int argc, char *argv[]) {
 
   }
   printf("Computed Danby estimate in %d steps after %.1f ms with mean-error %.2e\n",N_Danby,float(duration_Danby/1000.),err_Danby);
+
+  // Compute Danby quartic estimate
+  int N_Danby_hanno = 0; // Danby iterations
+  Float err_Danby_hanno;
+  long long int duration_Danby_hanno;
+
+  while (N_Danby_hanno<100){ // max limit!
+    start = high_resolution_clock::now(); // starting time
+    approx.compute_danby_hanno(N_Danby_hanno,E_Danby_hanno, tol);
+    stop = high_resolution_clock::now(); // ending time
+    duration_Danby_hanno = duration_cast<microseconds>(stop - start).count(); // duration
+
+    err_Danby_hanno = 0;
+    for(int i=0;i<N_ell;i++) err_Danby_hanno += abs(E_exact[i]-E_Danby_hanno[i])/N_ell;
+    if(err_Danby_hanno<tol) break;
+    N_Danby_hanno++;
+
+  }
+  printf("Computed Danby-Hanno estimate in %d steps after %.1f ms with mean-error %.2e\n",N_Danby_hanno,float(duration_Danby_hanno/1000.),err_Danby_hanno);
 
   // Compute series estimate
   int N_series = 0; // Series iterations

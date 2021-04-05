@@ -1,5 +1,67 @@
 # Some more experiments
 
+**Added by Hanno Rein, April 4th 2021 (Update 2):**
+
+Yet another small update:
+
+- Added Danby-Hanno method which is about twice as fast as the original Danby method for e=0.1. 
+
+```
+Running tests with: -O3 -ffast-math (used in paper)
+N_ell = 1000000
+e = 0.10
+tolerance = 1.00e-12
+Computed Newton-Raphson estimate in 3 steps after 138.9 ms with mean-error 2.11e-17
+Computed Newton-Raphson-Hanno estimate in 2 steps after 105.8 ms with mean-error 1.20e-14
+Computed Newton-Raphson-Hanno2 estimate in 1 steps after 81.6 ms with mean-error 4.60e-13
+Computed Danby estimate in 2 steps after 139.9 ms with mean-error 2.12e-17
+Computed Danby-Hanno estimate in 1 steps after 70.8 ms with mean-error 7.10e-13
+Computed series estimate in 11 steps after 84.8 ms with mean-error 4.74e-13
+Computed contour estimate in 5 steps after 67.8 ms with mean-error 2.17e-16
+
+
+
+Running tests with: -O3 -ffast-math -march-native
+N_ell = 1000000
+e = 0.10
+tolerance = 1.00e-12
+Computed Newton-Raphson estimate in 3 steps after 136.9 ms with mean-error 1.98e-17
+Computed Newton-Raphson-Hanno estimate in 2 steps after 101.7 ms with mean-error 1.20e-14
+Computed Newton-Raphson-Hanno2 estimate in 1 steps after 80.7 ms with mean-error 4.60e-13
+Computed Danby estimate in 2 steps after 132.7 ms with mean-error 1.99e-17
+Computed Danby-Hanno estimate in 1 steps after 67.3 ms with mean-error 7.10e-13
+Computed series estimate in 11 steps after 30.7 ms with mean-error 4.74e-13
+Computed contour estimate in 5 steps after 80.6 ms with mean-error 2.17e-16
+
+
+
+Running tests with: -O3 -march-native
+N_ell = 1000000
+e = 0.10
+tolerance = 1.00e-12
+Computed Newton-Raphson estimate in 3 steps after 136.8 ms with mean-error 1.22e-16
+Computed Newton-Raphson-Hanno estimate in 2 steps after 101.7 ms with mean-error 1.20e-14
+Computed Newton-Raphson-Hanno2 estimate in 1 steps after 80.8 ms with mean-error 4.60e-13
+Computed Danby estimate in 2 steps after 141.7 ms with mean-error 1.26e-16
+Computed Danby-Hanno estimate in 1 steps after 76.0 ms with mean-error 7.10e-13
+Computed series estimate in 11 steps after 212.7 ms with mean-error 4.74e-13
+Computed contour estimate in 5 steps after 78.3 ms with mean-error 1.96e-16
+
+
+
+Running tests with: -O1
+N_ell = 1000000
+e = 0.10
+tolerance = 1.00e-12
+Computed Newton-Raphson estimate in 3 steps after 146.3 ms with mean-error 1.22e-16
+Computed Newton-Raphson-Hanno estimate in 2 steps after 110.5 ms with mean-error 1.20e-14
+Computed Newton-Raphson-Hanno2 estimate in 1 steps after 88.9 ms with mean-error 4.60e-13
+Computed Danby estimate in 2 steps after 149.2 ms with mean-error 1.26e-16
+Computed Danby-Hanno estimate in 1 steps after 77.8 ms with mean-error 7.10e-13
+Computed series estimate in 11 steps after 220.1 ms with mean-error 4.74e-13
+Computed contour estimate in 5 steps after 77.3 ms with mean-error 1.96e-16
+```
+
 **Added by Hanno Rein, April 4th 2021 (Update):**
 
 Another small update:
