@@ -269,28 +269,36 @@ class Approximations {
   }
   
   void compute_markley(int N_it, Float *output){
-    Float M, alpha, d, q, r, w, E1, f1, f2, f3, f0, d3, d4, d5; 
+    Float M, alpha, d, q, r, w, E1, f1, f2, f3, f0, d3, d4, d5, E, SQR_M, SQR_q; 
 
+    Float TWO_M_PI = 2*M_PI;
+    Float SQR_M_PI = M_PI*M_PI;
     for(int i=0;i<N_ell;i++){
       M = ell_arr[i];
+      if (M>M_PI) M-= TWO_M_PI;
+      SQR_M = M*M;
 
-      alpha = (3 * M_PI*M_PI + 1.6 * (M_PI*M_PI - M_PI * abs(M))/(1 + e))/(M_PI*M_PI - 6);
+      alpha = (3 * SQR_M_PI + 1.6 * (SQR_M_PI - M_PI * abs(M))/(1 + e))/(SQR_M_PI - 6);
       d = 3 * (1 - e) + alpha * e;
-      q = 2 * alpha * d * (1 - e) - M*M;
-      r = 3 * alpha * d * (d - 1 + e) * M + M*M*M;
-      w = cbrt(abs(r) + sqrt(q*q*q + r*r));
+      q = 2 * alpha * d * (1 - e) - SQR_M;
+      SQR_q = q*q;
+      r = 3 * alpha * d * (d - 1 + e) * M + SQR_M*M;
+      w = cbrt(abs(r) + sqrt(SQR_q*q + r*r));
       w = w * w;
-      E1 = (2 * r * w / (w*w + w*q + q*q) + M)/d;
+      E1 = (2 * r * w / (w*w + w*q + SQR_q) + M)/d;
       f2 = e * sin(E1);
       f3 = e * cos(E1);
       f0 = E1 - f2 - M;
       f1 = 1 - f3;
       d3 = -f0 / (f1 - f0 * f2 / (2 * f1));
       d4 = -f0 / (f1 + f2 * d3 / 2 + d3*d3 * f3/6);
-      d5 = -f0 / (f1 + d4*f2/2 + d4*d4*f3/6 - d4*d4*f2/24);
+      d5 = -f0 / (f1 + d4*f2/2 + d4*d4*f3/6 - d4*d4*d4*f2/24);
 
-
-      output[i] = E1 + d5;
+      E = E1 + d5;
+      if (E<0) {
+          E += TWO_M_PI;
+      }
+      output[i] = E;
     }
   }
 
