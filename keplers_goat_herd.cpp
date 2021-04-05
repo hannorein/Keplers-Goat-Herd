@@ -226,7 +226,7 @@ class Approximations {
     // This has quartic convergence.
     // The initial step is defined as E_0 = ell + sgn(sin(ell))*e*k following Danby (1988)
 
-    Float f_E, fP_E, fPP_E, fPPP_E, this_ell, old_E, delta_i1, delta_i2, delta_i3, esinE, ecosE;
+    Float f_E, fP_E, fPP_E, fPPP_E, this_ell, old_E, delta_i2, delta_i3, esinE, ecosE;
 
     for(int i=0;i<N_ell;i++){
       this_ell = ell_arr[i];
@@ -251,9 +251,8 @@ class Approximations {
         fPP_E = esinE/2.;
         fPPP_E = ecosE;
 
-        delta_i1 = -f_E/fP_E;
-        delta_i2 = -f_E/(fP_E+delta_i1*fPP_E);
-        delta_i3 = -f_E/(fP_E+delta_i2*fPP_E+fPPP_E*delta_i2*delta_i2/6.);
+        delta_i2 = -f_E*fP_E/(fP_E*fP_E-f_E*fPP_E);
+        delta_i3 = -f_E/(fP_E + delta_i2*(fPP_E + fPPP_E*delta_i2/6.));
 
         // Update E
         old_E += delta_i3;
