@@ -267,6 +267,33 @@ class Approximations {
       output[i] = old_E;
     }
   }
+  
+  void compute_markley(int N_it, Float *output){
+    Float M, alpha, d, q, r, w, E1, f1, f2, f3, f0, d3, d4, d5; 
+
+    for(int i=0;i<N_ell;i++){
+      M = ell_arr[i];
+
+      alpha = (3 * M_PI*M_PI + 1.6 * (M_PI*M_PI - M_PI * abs(M))/(1 + e))/(M_PI*M_PI - 6);
+      d = 3 * (1 - e) + alpha * e;
+      q = 2 * alpha * d * (1 - e) - M*M;
+      r = 3 * alpha * d * (d - 1 + e) * M + M*M*M;
+      w = cbrt(abs(r) + sqrt(q*q*q + r*r));
+      w = w * w;
+      E1 = (2 * r * w / (w*w + w*q + q*q) + M)/d;
+      f2 = e * sin(E1);
+      f3 = e * cos(E1);
+      f0 = E1 - f2 - M;
+      f1 = 1 - f3;
+      d3 = -f0 / (f1 - f0 * f2 / (2 * f1));
+      d4 = -f0 / (f1 + f2 * d3 / 2 + d3*d3 * f3/6);
+      d5 = -f0 / (f1 + d4*f2/2 + d4*d4*f3/6 - d4*d4*f2/24);
+
+
+      output[i] = E1 + d5;
+    }
+  }
+
 
   void compute_series(int N_it, Float *output){
     // Solve Kepler's equation via the series method described in Murray & Dermot.
@@ -439,6 +466,7 @@ int main(int argc, char *argv[]) {
   Float* E_newton_raphson_hanno2 = new Float[N_ell];
   Float* E_Danby = new Float[N_ell];
   Float* E_Danby_hanno = new Float[N_ell];
+  Float* E_markley = new Float[N_ell];
   Float* E_series = new Float[N_ell];
   Float* E_contour = new Float[N_ell];
 
@@ -541,6 +569,26 @@ int main(int argc, char *argv[]) {
 
   }
   printf("Computed Danby-Hanno estimate in %d steps after %.1f ms with mean-error %.2e\n",N_Danby_hanno,float(duration_Danby_hanno/1000.),err_Danby_hanno);
+  
+  // Compute Markley
+  int N_markley = 0; // Danby iterations
+  Float err_markley;
+  long long int duration_markley;
+
+  while (N_markley<1){ // max limit!
+    start = high_resolution_clock::now(); // starting time
+    approx.compute_markley(N_markley,E_markley);
+    stop = high_resolution_clock::now(); // ending time
+    duration_markley = duration_cast<microseconds>(stop - start).count(); // duration
+
+    err_markley = 0;
+    for(int i=0;i<N_ell;i++) err_markley += abs(E_exact[i]-E_markley[i])/N_ell;
+    if(err_markley<tol) break;
+    N_markley++;
+
+  }
+  printf("Computed Markley estimate in %d steps after %.1f ms with mean-error %.2e\n",N_markley,float(duration_markley/1000.),err_markley);
+
 
   // Compute series estimate
   int N_series = 0; // Series iterations
