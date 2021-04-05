@@ -246,13 +246,15 @@ class Approximations {
         sincos(old_E,&esinE,&ecosE);
         esinE = e*esinE;
         ecosE = e*ecosE;
-        f_E = old_E - esinE-this_ell;
+        f_E = old_E - esinE - this_ell;
         fP_E = 1. - ecosE;
         fPP_E = esinE/2.;
         fPPP_E = ecosE;
 
-        delta_i2 = -f_E*fP_E/(fP_E*fP_E-f_E*fPP_E);
-        delta_i3 = -f_E/(fP_E + delta_i2*(fPP_E + fPPP_E*delta_i2/6.));
+        static const double div6 = 1.0 / 6.0;
+
+        delta_i2 = -f_E*fP_E/(fP_E*fP_E - f_E*fPP_E);
+        delta_i3 = -f_E/(fP_E + delta_i2*(fPP_E + fPPP_E*delta_i2*div6));
 
         // Update E
         old_E += delta_i3;
